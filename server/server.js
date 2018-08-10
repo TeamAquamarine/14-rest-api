@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT;
 const TOKEN = process.env.TOKEN;
 
-// COMMENT: Explain the following line of code. What is the API_KEY? Where did it come from?
+// COMMENT: Explain the following line of code. What is the API_KEY? Where did it come from? It came from google developers console and We exported the API Key into our local environment through terminal. 
 const API_KEY = process.env.GOOGLE_API_KEY;
 
 // Database Setup
@@ -28,25 +28,25 @@ app.get('/api/v1/admin', (req, res) => res.send(TOKEN === parseInt(req.query.tok
 app.get('/api/v1/books/find', (req, res) => {
   let url = 'https://www.googleapis.com/books/v1/volumes';
 
-  // COMMENT: Explain the following four lines of code. How is the query built out? What information will be used to create the query?
-  let query = ''
+  // COMMENT: Explain the following four lines of code. How is the query built out? What information will be used to create the query? Lines 32-35 are building the query string, the search query put into the find page is used build the strings.
+  let query = '';
   if(req.query.title) query += `+intitle:${req.query.title}`;
   if(req.query.author) query += `+inauthor:${req.query.author}`;
   if(req.query.isbn) query += `+isbn:${req.query.isbn}`;
 
-  // COMMENT: What is superagent? How is it being used here? What other libraries are available that could be used for the same purpose?
+  // COMMENT: What is superagent? How is it being used here? What other libraries are available that could be used for the same purpose? Its Middleware that allows the handleing of HTTP requests for node.js. Axios.js is another library we could use. 
   superagent.get(url)
     .query({'q': query})
     .query({'key': API_KEY})
     .then(response => response.body.items.map((book, idx) => {
 
-      // COMMENT: The line below is an example of destructuring. Explain destructuring in your own words.
+      // COMMENT: The line below is an example of destructuring. Explain destructuring in your own words. It is grabbing all the keys from book.volumeInfo and declaring them as key value pairs in the object literal. 
       let { title, authors, industryIdentifiers, imageLinks, description } = book.volumeInfo;
 
-      // COMMENT: What is the purpose of the following placeholder image?
+      // COMMENT: What is the purpose of the following placeholder image? It is the default cover that is shows if there is not one in the google api result.
       let placeholderImage = 'http://www.newyorkpaddy.com/images/covers/NoCoverAvailable.jpg';
 
-      // COMMENT: Explain how ternary operators are being used below.
+      // COMMENT: Explain how ternary operators are being used below. It is looking io see if there is a value, if so it returns it, if not it is returning the following placeholder value.  
       return {
         title: title ? title : 'No title available',
         author: authors ? authors[0] : 'No authors available',
@@ -60,7 +60,7 @@ app.get('/api/v1/books/find', (req, res) => {
     .catch(console.error)
 })
 
-// COMMENT: How does this route differ from the route above? What does ':isbn' refer to in the code below?
+// COMMENT: How does this route differ from the route above? What does ':isbn' refer to in the code below? This one is searching specifically by ISBN
 app.get('/api/v1/books/find/:isbn', (req, res) => {
   let url = 'https://www.googleapis.com/books/v1/volumes';
   superagent.get(url)
